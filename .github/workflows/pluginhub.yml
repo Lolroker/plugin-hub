@@ -1,0 +1,43 @@
+name: Build and Upload Plugin Hub
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Run Gradle downloadPlugins
+      run: ./gradlew downloadPlugins
+
+    - name: Run Gradle signManifest
+      run: ./gradlew signManifest
+
+    - name: Upload to FTP
+      uses: sebastianpopp/ftp-action@v4
+      with:
+        host: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASS }}
+        localDir: plugin-hub/output
+        remoteDir: /public_html/pluginhub5
