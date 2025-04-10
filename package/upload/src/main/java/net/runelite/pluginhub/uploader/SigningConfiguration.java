@@ -54,7 +54,7 @@ public class SigningConfiguration
 
 			byte[] pkcs8 = Base64.getMimeDecoder().decode(keyStr
 				.replace("\\n", "\n")
-				.replaceAll(" |-----(BEGIN|END) PRIVATE KEY-----(\n?)", ""));
+				.replaceAll(" |-----(BEGIN|END) PRIVATE KEY----(\n?)", ""));
 			key = (RSAPrivateCrtKey) kf.generatePrivate(new PKCS8EncodedKeySpec(pkcs8));
 			cert = kf.generatePublic(new RSAPublicKeySpec(key.getModulus(), key.getPublicExponent()));
 		}
